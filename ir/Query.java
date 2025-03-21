@@ -49,7 +49,7 @@ public class Query {
      *  Should be between 0 and 1.
      *  (only used in assignment 3).
      */
-    double alpha = 0.5;
+    double alpha = 0.2;
 
     /**  
      *  Relevance feedback constant beta (= weight of query terms obtained by

@@ -42,9 +42,9 @@ public class Engine {
     Searcher searcher;
 
     /** K-gram index */
-    KGramIndex kgIndex = null;
+    // KGramIndex kgIndex = null;
     // Assignment 3: Comment the line above and uncomment the next line
-    // KgramIndex kgIndex = new KGramIndex(2);
+    KGramIndex kgIndex = new KGramIndex(2);
 
     /** Spell checker */
     SpellChecker speller;

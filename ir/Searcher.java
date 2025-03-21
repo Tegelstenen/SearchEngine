@@ -48,6 +48,8 @@ public class Searcher {
         if (postingLists.isEmpty()) {
             return new PostingsList();
         }
+
+        Query query = wildcard(query);
         
         // Handle ranked queries separately.
         if (queryType == QueryType.RANKED_QUERY) {
@@ -182,5 +184,14 @@ public class Searcher {
         }
 
         return scores;
+    }
+
+    private Query wildcard(Query query) {
+        boolean containsWildcard = query.queryTerms.stream().anyMatch(term -> term.term.contains("*"));
+        if(!containsWildcard) {
+            return query;
+        } else {
+            kgIndex.
+        }
     }
 }
