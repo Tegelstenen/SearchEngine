@@ -1,0 +1,24 @@
+0 Elaine_Kasimatis.f 0
+1 Events_Calendars.f 0
+2 Student_Organizations.f 0
+3 Quantitative_Biology_and_Bioinformatics.f 1
+4 Private_Tutoring.f 0
+5 Economics.f 1                                         
+6 Biological_Systems_Engineering.f 0
+7 UC_Davis_English_Department.f 0
+8 Computer_Science.f 0
+9 What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f 1
+10 Evelyn_Silvia.f 1
+11 Fiber_and_Polymer_Science.f 0
+12 UCD_Honors_and_Prizes.f 0
+13 document_translated.f 0
+14 Statistics.f 1 
+15 University_Departments.f 0
+16 ECE_Course_Reviews.f 0
+17 Hydrology.f 0
+18 MattHh.f 0
+19 Candidate_Statements.f 0
+20 Wildlife%2C_Fish%2C_and_Conservation_Biology.f 1
+21 Mathematics.f 3
+7/22=0.31
+7/100=0.07

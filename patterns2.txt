@@ -1,0 +1,18 @@
+"Applied mathematics graduate davis"
+0 Student_Organizations.f 0
+1 Quantitative_Biology_and_Bioinformatics.f 2
+2 Private_Tutoring.f 0
+3 What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f 1
+4 Graduate_Groups.f 1
+5 document_translated.f 0
+6 MotokiWu.f 0
+7 watson.f 1
+8 Statistics.f 1
+9 University_Departments.f 0
+10 Society_for_Industrial_and_Applied_Mathematics.f 2
+11 Linda_Katehi.f 0
+12 MattHh.f 0
+13 Wildlife%2C_Fish%2C_and_Conservation_Biology.f 1
+14 Mathematics.f 3
+precision: 8/14 = 0.57
+recall: 8/100 = 0.08
