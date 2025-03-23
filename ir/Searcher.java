@@ -7,12 +7,16 @@
 
 package ir;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Queue;
+
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import ir.Query.QueryTerm;
 
@@ -34,6 +38,7 @@ public class Searcher {
         this.index = index;
         this.kgIndex = kgIndex;
     }
+    
 
     private final double rankWeight = 1;
     private final double tfidfWeight = 1;
@@ -42,43 +47,35 @@ public class Searcher {
      *  @return A postings list representing the result of the query.
      */
     public PostingsList search(Query query, QueryType queryType, RankingType rankingType, NormalizationType normType) { 
-        Queue<PostingsList> postingLists = getPostingLists(query);
-        
-        // If there are no posting lists, return an empty list.
-        if (postingLists.isEmpty()) {
-            return new PostingsList();
-        }
-
-        Query query = wildcard(query);
-        
         // Handle ranked queries separately.
         if (queryType == QueryType.RANKED_QUERY) {
             return rankedSearch(query, rankingType, normType);
         }
-        
-        // For intersection and phrase queries, iteratively combine posting lists.
-        PostingsList intersection = postingLists.poll();
-        while (!postingLists.isEmpty()) {
-            PostingsList p2 = postingLists.poll();
-            if (queryType == QueryType.INTERSECTION_QUERY) {
-                intersection = intersect(intersection, p2);
-            } else if (queryType == QueryType.PHRASE_QUERY) {
-                intersection = positionalIntersect(intersection, p2);
+
+        PostingsList intersection = new PostingsList();
+        for (QueryTerm queryTerm: query.queryTerms) {
+            String token = queryTerm.term;
+            PostingsList postingsList;
+            if(!token.contains("*")) {
+                System.out.println("Token: " + token + " not wildcard");
+                postingsList = index.getPostings(token);
+            } else {
+                System.out.println("Token: " + token + " is wildcard");
+                postingsList = getWildcardPostings(token);
+            }
+            
+            if (intersection.size() == 0) {
+                intersection = postingsList;
+            } else {
+                if (queryType == QueryType.INTERSECTION_QUERY) {
+                    intersection = intersect(intersection, postingsList);
+                } else if (queryType == QueryType.PHRASE_QUERY) {
+                    intersection = positionalIntersect(intersection, postingsList);
+                }
             }
         }
         return intersection;
     }
-
-    private Queue<PostingsList> getPostingLists(Query query) {
-        Queue<PostingsList> postingLists = new LinkedList<>();
-        for (QueryTerm queryTerm : query.queryTerms) {
-            String term = queryTerm.term;
-            PostingsList postingList = this.index.getPostings(term);
-            postingLists.offer(postingList);
-        }
-        return postingLists;
-    }
-
 
     private PostingsList intersect(PostingsList p1, PostingsList p2) {
         PostingsList answer = new PostingsList();
@@ -145,16 +142,30 @@ public class Searcher {
     
     private PostingsList rankedSearch(Query query, RankingType rankingType, NormalizationType normType) {
         PostingsList scores = new PostingsList();
+
+        // Create a new string that adds all the matching terms to one long query
+        StringBuilder queryString = new StringBuilder();
+        for (QueryTerm queryTerm: query.queryTerms) { 
+            String token = queryTerm.term;
+            if (token.contains("*")) {
+                HashSet<String> matchingTerms = getMatchingTerms(token);
+                for (String matchingTerm: matchingTerms) {
+                    queryString.append(matchingTerm).append(" ");
+                }
+            } else {
+                queryString.append(token).append(" ");
+            }
+        }
+        Query extendedQuery = new Query(queryString.toString().trim());
         
-        for (QueryTerm queryTerm: query.queryTerms) {
+        for (QueryTerm queryTerm: extendedQuery.queryTerms) {
             String term = queryTerm.term;
             double termWeight = queryTerm.weight;
 
             PostingsList postingsList = this.index.getPostings(term);
             if (postingsList == null) continue;
             double docFreq = postingsList.size();
-            double idf = Math.log(N/docFreq);
-        
+            double idf = -Math.log(docFreq/N);
             for (PostingsEntry entry : postingsList) {
 
                 if (rankingType == RankingType.TF_IDF || rankingType == RankingType.COMBINATION || rankingType == RankingType.HITS) {
@@ -166,6 +177,7 @@ public class Searcher {
                         docLen = Index.docEucLen.get(entry.docID);
                     }
                     double tfidf = tf * idf / docLen;
+                    System.out.println("Term: " + term + ", TF: " + tf + ", IDF: " + idf + ", DocLen: " + docLen + ", TF-IDF: " + (tf * idf / docLen));
                     scores.add(entry.docID, 0, tfidf * tfidfWeight * termWeight);
                 }
 
@@ -186,12 +198,60 @@ public class Searcher {
         return scores;
     }
 
-    private Query wildcard(Query query) {
-        boolean containsWildcard = query.queryTerms.stream().anyMatch(term -> term.term.contains("*"));
-        if(!containsWildcard) {
-            return query;
-        } else {
-            kgIndex.
+    private HashSet<String> getMatchingTerms(String token) {
+        int K = kgIndex.getK();
+        
+        // Get intersection of all Kgram tokenIDs
+        String[] parts = ("^" + token + "$").split("\\*");
+        System.out.println("Parts: " + parts);
+        List<KGramPostingsEntry> intersection = new ArrayList<KGramPostingsEntry>();
+        for (String part: parts) {
+            if (part.length() >= K) {
+                for (int i = 0; i <= part.length() - K; i++) {
+                    String kgram = part.substring(i, i + K);
+                    System.out.println("Kgram : " + kgram);
+                    List<KGramPostingsEntry> kgramPostings = kgIndex.getPostings(kgram);
+                    if(intersection.isEmpty()) {
+                        intersection = kgramPostings;
+                    } else {
+                        intersection =  kgIndex.intersect(intersection, kgramPostings);
+                    }
+                }
+            } 
         }
+        System.out.println("final intersection : " + intersection);
+
+        // Get all tokens from intersection
+        HashSet<String> matchingTerms = new HashSet<>();
+        for (KGramPostingsEntry entry: intersection) {
+            int tokenId = entry.tokenID;
+            String term = kgIndex.getTermByID(tokenId);
+            
+            // Check if the term matches the wildcard pattern
+            String pattern = ("^" + token + "$").replace("*", ".*");
+            if (term.matches(pattern)) {
+                matchingTerms.add(term);
+            }
+            
+        }
+
+        return matchingTerms;
+    }
+
+    private PostingsList getWildcardPostings(String token) {
+        
+        HashSet<String> matchingTerms = getMatchingTerms(token);
+        System.out.println("All matching terms: " + matchingTerms);
+
+        // Get all the union of all the postingslist of all the matching terms
+        PostingsList union = new PostingsList();
+        for (String term: matchingTerms) {
+            PostingsList postingsList = index.getPostings(term);
+            union = PostingsList.merge(union, postingsList);
+        }
+
+        System.out.println("Final Union: " + union);
+
+        return union;
     }
 }

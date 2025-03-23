@@ -50,7 +50,7 @@ public class KGramIndex {
     /**
      *  Get intersection of two postings lists
      */
-    private List<KGramPostingsEntry> intersect(List<KGramPostingsEntry> p1, List<KGramPostingsEntry> p2) {
+    public List<KGramPostingsEntry> intersect(List<KGramPostingsEntry> p1, List<KGramPostingsEntry> p2) {
         List<KGramPostingsEntry> answer = new ArrayList<KGramPostingsEntry>();
         int tokenIndex1 = 0;
         int tokenIndex2 = 0;

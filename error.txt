@@ -1,11 +1,11 @@
 
-0 EmilyMaas.f
-1 JasonRifkind.f
-2 Daisy_Scouts.f
-3 Brownies.f
-4 Davis_Rebekah_Lodge.f
-5 Lala.f
-6 personofnormalintelligencewhoenjoyshappyhourandfriendlyservice.f
-7 BrittneyMcClain.f
-8 A%2B_Image.f
-9 VaileAdams.f
+0 Davis_Wiki%27s_Best_of_Davis_08.f
+1 Restaurants.f
+2 Downtown.f
+3 Departed_Businesses.f
+4 Night_Time.f
+5 Vegetarian_Options.f
+6 Delta_of_Venus.f
+7 Burgers_and_Brew.f
+8 Bistro_33.f
+9 Crepeville.f
