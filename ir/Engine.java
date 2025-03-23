@@ -47,9 +47,9 @@ public class Engine {
     KGramIndex kgIndex = new KGramIndex(2);
 
     /** Spell checker */
-    SpellChecker speller;
+    // SpellChecker speller;
     // Assignment 3: Comment the line above and uncomment the next line
-    // SpellChecker = new SpellChecker( index, kgIndex );
+    SpellChecker speller = new SpellChecker( index, kgIndex );
     
     /** The engine GUI. */
     SearchGUI gui;

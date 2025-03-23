@@ -20,6 +20,12 @@ public class KGramIndex {
     /** Mapping from term strings to term ids */
     HashMap<String,Integer> term2id = new HashMap<String,Integer>();
 
+    HashMap<String,Integer> term2numKgrams = new HashMap<String,Integer>();
+
+    public int getNumKgrams(String term) {
+        return term2numKgrams.get(term);
+    }
+
     /** Index from k-grams to list of term ids that contain the k-gram */
     HashMap<String,List<KGramPostingsEntry>> index = new HashMap<String,List<KGramPostingsEntry>>();
 
@@ -84,6 +90,7 @@ public class KGramIndex {
             int tokenId = generateTermID();
             id2term.put(tokenId, token);
             term2id.put(token, tokenId);
+            term2numKgrams.put(token, token.length()+3-K);
         }
         int tokenId = term2id.get(token);
         
